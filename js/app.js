@@ -53,6 +53,10 @@ const btnBulkDelete = document.getElementById('btn-bulk-delete');
 const tabRecord = document.getElementById('tab-record');
 const tabWave   = document.getElementById('tab-wave');
 const tabList   = document.getElementById('tab-list');
+const tabHelp   = document.getElementById('tab-help');
+
+// ── DOM: ヘルプ画面 ────────────────────────────────────────
+const screenHelp = document.getElementById('screen-help');
 
 // ── 選択モード状態 ─────────────────────────────────────────
 let selectMode  = false;
@@ -88,6 +92,7 @@ const selectedIds = new Set();
 tabRecord.addEventListener('click', () => showScreen('record'));
 tabWave.addEventListener('click',   () => { if (audioBuffer) showScreen('review'); });
 tabList.addEventListener('click',   () => showScreen('list'));
+tabHelp.addEventListener('click',   () => showScreen('help'));
 
 function showScreen(id) {
   if (id !== 'list' && selectMode) exitSelectMode();
@@ -98,10 +103,12 @@ function showScreen(id) {
   screenRecord.style.display = id === 'record' ? 'flex' : 'none';
   screenReview.style.display = id === 'review' ? 'flex' : 'none';
   screenList.style.display   = id === 'list'   ? 'flex' : 'none';
+  screenHelp.style.display   = id === 'help'   ? 'flex' : 'none';
 
   tabRecord.classList.toggle('active', id === 'record');
   tabWave.classList.toggle('active',   id === 'review');
   tabList.classList.toggle('active',   id === 'list');
+  tabHelp.classList.toggle('active',   id === 'help');
 
   if (id === 'review') drawLoop();
   if (id === 'list')   renderList();

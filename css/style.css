@@ -509,3 +509,109 @@ header h1 {
   color: var(--border);
   cursor: default;
 }
+
+/* ════════════════════════════════
+   ヘルプ画面
+════════════════════════════════ */
+.help-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 0 16px;
+}
+
+.help-section {
+  padding: 20px 20px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.help-section:last-child { border-bottom: none; }
+
+.help-section h2 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.help-section h3 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 16px 0 8px;
+}
+
+.help-lead {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.help-steps {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.help-steps li {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.help-steps li strong {
+  color: var(--text);
+}
+
+.help-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+  margin: 10px 0 14px;
+}
+
+/* FAQ アコーディオン */
+.help-qa {
+  border-top: 1px solid var(--border);
+  padding: 2px 0;
+}
+.help-qa:last-child { border-bottom: 1px solid var(--border); }
+
+.help-qa summary {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 12px 4px 12px 20px;
+  cursor: pointer;
+  position: relative;
+  list-style: none;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+.help-qa summary::-webkit-details-marker { display: none; }
+
+.help-qa summary::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.6rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.help-qa[open] summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.help-qa p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.65;
+  padding: 0 4px 14px 20px;
+}

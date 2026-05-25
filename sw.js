@@ -1,4 +1,4 @@
-const CACHE = 'licketch-v2';
+const CACHE = 'licketch-v3';
 
 const SHELL = [
   '/',

@@ -16,9 +16,8 @@
 
   <!-- ══ 録音画面 ══ -->
   <div class="screen" id="screen-record">
-    <header class="record-header">
+    <header>
       <h1>Licketch</h1>
-      <button class="btn-text" id="btn-list">一覧</button>
     </header>
     <main>
       <div class="time-display" id="time-display">00:00.00</div>
@@ -35,15 +34,12 @@
       <button class="btn-rec" id="btn-rec">REC</button>
 
       <div class="mark-log" id="mark-log"></div>
-
-      <button class="btn-review" id="btn-review" style="display:none">波形を確認</button>
     </main>
   </div>
 
   <!-- ══ フレーズ確認画面 ══ -->
   <div class="screen" id="screen-review" style="display:none">
     <header class="review-header">
-      <button class="btn-icon" id="btn-back">← 録音</button>
       <h1>Licketch</h1>
       <span class="seg-label" id="seg-label">1 / 1</span>
     </header>
@@ -68,7 +64,6 @@
   <!-- ══ 一覧画面 ══ -->
   <div class="screen" id="screen-list" style="display:none">
     <header class="list-header">
-      <button class="btn-icon" id="btn-list-back">←</button>
       <h1>Licketch</h1>
       <span class="list-count" id="list-count">0件</span>
       <button class="btn-text" id="btn-select">選択</button>
@@ -81,6 +76,125 @@
       <button class="btn-bulk-delete" id="btn-bulk-delete" disabled>削除</button>
     </div>
   </div>
+
+  <!-- ══ ヘルプ画面 ══ -->
+  <div class="screen" id="screen-help" style="display:none">
+    <header>
+      <h1>Licketch</h1>
+    </header>
+
+    <div class="help-body">
+
+      <!-- 1. 基本的な使い方 -->
+      <section class="help-section">
+        <h2>基本的な使い方</h2>
+        <ol class="help-steps">
+          <li>
+            <strong>録音する</strong>
+            「録音」タブで <strong>REC</strong> ボタンをタップして演奏を開始。無音が約 1.5 秒続くと自動でマークが打たれます。演奏が終わったら再度タップ（STOP）。
+          </li>
+          <li>
+            <strong>波形を確認する</strong>
+            録音停止後、自動的に「波形」タブへ移動。セグメントごとに <strong>▶</strong> ボタンでプレビュー再生できます。波形の左右のハンドルをドラッグしてトリム範囲を調整できます。
+          </li>
+          <li>
+            <strong>保存する</strong>
+            <strong>保存</strong> ボタンで WAV ファイルとして保存します。<strong>次へ ▶</strong> で次のセグメントへ進めます。全セグメントを確認すると「一覧」タブへ移動します。
+          </li>
+          <li>
+            <strong>一覧で管理する</strong>
+            「一覧」タブで保存済みのフレーズを確認・再生・ダウンロードできます。長押しで個別削除、右上の「選択」ボタンで複数選択して一括削除もできます。
+          </li>
+        </ol>
+        <p class="help-note">ブラウザを閉じても録音データはバックグラウンドで保持されます。再起動時に「未処理の録音があります」と表示されたら「OK」で波形確認を再開できます。</p>
+      </section>
+
+      <!-- 2. PWA インストール -->
+      <section class="help-section">
+        <h2>ホーム画面へのインストール</h2>
+        <p class="help-lead">インストールするとマイクの許可が保持され、アドレスバーのないアプリとして起動できます。</p>
+
+        <h3>iOS / iPadOS（Safari）</h3>
+        <ol class="help-steps">
+          <li>Safari でこのページを開く</li>
+          <li>画面下部の <strong>共有ボタン</strong>（□に↑のアイコン）をタップ</li>
+          <li><strong>「ホーム画面に追加」</strong> を選択</li>
+          <li>名前を確認して <strong>「追加」</strong> をタップ</li>
+          <li>ホーム画面のアイコンから起動するとスタンドアロンモードで動作します</li>
+        </ol>
+        <p class="help-note">Chrome on iOS ではホーム画面への追加ができません。必ず Safari を使用してください。</p>
+
+        <h3>Android（Chrome）</h3>
+        <ol class="help-steps">
+          <li>Chrome でこのページを開く</li>
+          <li>右上の <strong>メニュー（⋮）</strong> をタップ</li>
+          <li><strong>「アプリをインストール」</strong> または <strong>「ホーム画面に追加」</strong> を選択</li>
+          <li>確認ダイアログで <strong>「インストール」</strong> をタップ</li>
+        </ol>
+      </section>
+
+      <!-- 3. オーディオインターフェース -->
+      <section class="help-section">
+        <h2>オーディオインターフェースの接続</h2>
+        <ol class="help-steps">
+          <li>USB-C ケーブルでオーディオインターフェースを iPad に接続する</li>
+          <li>iOS が自動認識します（ドライバーのインストールは不要）</li>
+          <li>REC ボタンをタップして録音を開始すると、接続した機器の入力が使われます</li>
+        </ol>
+        <p class="help-note">Lightning ポートの iPad は USB-C→Lightning 変換アダプター経由で接続できますが、動作は保証されません。Bluetooth オーディオデバイスは遅延が大きいため非推奨です。</p>
+        <p class="help-note">接続が認識されない場合は、GarageBand などで入力が確認できるか先に試してください。</p>
+      </section>
+
+      <!-- 4. よくある問題 -->
+      <section class="help-section">
+        <h2>よくある問題</h2>
+
+        <details class="help-qa">
+          <summary>マイクの許可ダイアログが毎回表示される</summary>
+          <p>Safari の仕様で、ブラウザとして開いているとページを再読み込みするたびに許可が求められます。<strong>ホーム画面に追加して PWA として起動</strong>すると、セッション中は再確認されなくなります。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>「マイクへのアクセスが許可されていません」と表示される</summary>
+          <p>設定アプリ → <strong>Safari</strong> → <strong>マイク</strong> を「確認」または「許可」に設定してください。PWA の場合は 設定 → <strong>プライバシーとセキュリティ</strong> → <strong>マイク</strong> から Licketch を許可してください。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>波形が表示されない</summary>
+          <p>録音データがない状態では「波形」タブは無効（グレー表示）になります。録音を行うと自動的に波形確認画面へ移動します。ページをリロードした場合は再度録音してください。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>再生ボタンを押しても音が出ない</summary>
+          <p>ブラウザの自動再生ポリシーにより、ページ読み込み直後は音声が再生できない場合があります。<strong>▶ ボタンを直接タップ</strong>してください。それでも再生されない場合はページをリロードして録音し直してください。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>録音中にアプリを切り替えると録音が止まる</summary>
+          <p>iOS の仕様です。録音中は他のアプリへの切り替えを避けてください。誤って切り替えた場合、停止前のデータは波形確認画面で確認できます。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>保存したフレーズが消えた</summary>
+          <p>フレーズのデータはブラウザの IndexedDB に保存されています。「Safari の履歴とウェブサイトデータを消去」や「サイトのデータを消去」を行うと削除されます。重要なフレーズは必ずダウンロード（↓ ボタン）してバックアップしてください。</p>
+        </details>
+
+        <details class="help-qa">
+          <summary>フレーズが正しく分割されない・無音区間が残る</summary>
+          <p>無音検知の閾値は -50 dB、判定時間は 1.5 秒に設定されています。環境ノイズが大きい場合や、短い休符の多い演奏では誤検知が起こることがあります。波形確認画面でトリムハンドルを手動で調整して対応してください。</p>
+        </details>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ══ タブバー（全画面共通） ══ -->
+  <nav class="tab-bar">
+    <button class="tab active" id="tab-record">録音</button>
+    <button class="tab"        id="tab-wave"   disabled>波形</button>
+    <button class="tab"        id="tab-list">一覧</button>
+    <button class="tab"        id="tab-help">？</button>
+  </nav>
 
   <script type="module" src="js/app.js"></script>
 </body>
