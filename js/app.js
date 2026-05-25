@@ -244,15 +244,17 @@ btnNext.addEventListener('click', () => {
 btnSave.addEventListener('click', async () => {
   stopPreview();
   const { start, end } = waveform.getTrim();
-  const wavBlob = encodeWAV(audioBuffer, start, end);
-  const name    = makeFileName();
-  const meta    = { name, date: new Date().toISOString(), duration: end - start, size: wavBlob.size };
 
-  btnSave.disabled     = true;
-  btnSave.textContent  = '保存中…';
-  await storage.savePhrase(wavBlob, meta);
-  btnSave.disabled     = false;
-  btnSave.textContent  = '保存 ✓';
+  btnSave.disabled    = true;
+  btnSave.textContent = '保存中…';
+
+  const aacBlob = await encodeAAC(audioBuffer, start, end);
+  const name    = makeFileName();
+  const meta    = { name, date: new Date().toISOString(), duration: end - start, size: aacBlob.size };
+
+  await storage.savePhrase(aacBlob, meta);
+  btnSave.disabled    = false;
+  btnSave.textContent = '保存 ✓';
   setTimeout(() => { if (btnSave.textContent === '保存 ✓') btnSave.textContent = '保存'; }, 1200);
 
   if (activeSegIdx >= segments.length - 1) exitReviewScreen();
@@ -467,37 +469,35 @@ function appendMarkItem(t) {
   markLog.prepend(el);
 }
 
-// ── WAV encoder ────────────────────────────────────────────
-function encodeWAV(buffer, startSec, endSec) {
-  const sr   = buffer.sampleRate;
-  const s0   = Math.round(startSec * sr);
-  const s1   = Math.min(Math.round(endSec * sr), buffer.length);
-  const pcm  = buffer.getChannelData(0).slice(s0, s1);
-  const len  = pcm.length;
+// ── AAC encoder ────────────────────────────────────────────
+// Renders the trimmed segment through MediaRecorder to get native AAC/MP4.
+// Audio is routed to a MediaStreamDestination (not the speakers).
+function encodeAAC(audioBuffer, startSec, endSec) {
+  return new Promise(async (resolve) => {
+    if (audioContext.state === 'suspended') await audioContext.resume();
 
-  const i16 = new Int16Array(len);
-  for (let i = 0; i < len; i++) {
-    i16[i] = Math.max(-32768, Math.min(32767, Math.round(pcm[i] * 32767)));
-  }
+    const dest     = audioContext.createMediaStreamDestination();
+    const TYPES    = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'];
+    const mimeType = TYPES.find(t => MediaRecorder.isTypeSupported(t)) ?? '';
+    const mr       = new MediaRecorder(dest.stream, mimeType ? { mimeType } : {});
+    const chunks   = [];
 
-  const dataSize = i16.byteLength;
-  const wav  = new ArrayBuffer(44 + dataSize);
-  const v    = new DataView(wav);
-  const str  = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mr.onstop = () => resolve(new Blob(chunks, { type: mr.mimeType }));
 
-  str(0,  'RIFF'); v.setUint32(4, 36 + dataSize, true);
-  str(8,  'WAVE'); str(12, 'fmt ');
-  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true);
-  v.setUint16(32, 2, true);  v.setUint16(34, 16, true);
-  str(36, 'data'); v.setUint32(40, dataSize, true);
-  new Int16Array(wav, 44).set(i16);
-  return new Blob([wav], { type: 'audio/wav' });
+    mr.start();
+
+    const src = audioContext.createBufferSource();
+    src.buffer = audioBuffer;
+    src.connect(dest);
+    src.onended = () => mr.stop();
+    src.start(0, startSec, endSec - startSec);
+  });
 }
 
 function makeFileName() {
   const n = new Date();
-  return `licketch_${n.getFullYear()}${pad2(n.getMonth()+1)}${pad2(n.getDate())}_${pad2(n.getHours())}${pad2(n.getMinutes())}${pad2(n.getSeconds())}.wav`;
+  return `licketch_${n.getFullYear()}${pad2(n.getMonth()+1)}${pad2(n.getDate())}_${pad2(n.getHours())}${pad2(n.getMinutes())}${pad2(n.getSeconds())}.m4a`;
 }
 
 function downloadBlob(blob, filename) {
