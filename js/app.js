@@ -159,6 +159,8 @@ async function enterReviewScreen() {
   segments = meaningful.length > 0 ? meaningful : segments;
 
   activeSegIdx = 0;
+  updateWaveTab();
+  showScreen('review');  // canvas must be visible before _resize() reads clientWidth/Height
 
   if (!waveform) {
     waveform = new Waveform(waveCanvas);
@@ -171,8 +173,6 @@ async function enterReviewScreen() {
   const { start, end } = waveform.getTrim();
   updateTrimInfo(start, end);
   updateNavButtons();
-  updateWaveTab();
-  showScreen('review');
 }
 
 let rafDraw = null;
