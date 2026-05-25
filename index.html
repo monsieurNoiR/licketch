@@ -3,15 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#111111">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Licketch">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
   <title>Licketch</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ── 録音画面 ── -->
+  <!-- ══ 録音画面 ══ -->
   <div class="screen" id="screen-record">
-    <header>
+    <header class="record-header">
       <h1>Licketch</h1>
+      <button class="btn-text" id="btn-list">一覧</button>
     </header>
     <main>
       <div class="time-display" id="time-display">00:00.00</div>
@@ -21,10 +28,7 @@
           <div class="meter-fill" id="meter-fill"></div>
         </div>
         <div class="meter-labels">
-          <span>-70dB</span>
-          <span>-50dB</span>
-          <span>-20dB</span>
-          <span>0dB</span>
+          <span>-70dB</span><span>-50dB</span><span>-20dB</span><span>0dB</span>
         </div>
       </div>
 
@@ -36,10 +40,10 @@
     </main>
   </div>
 
-  <!-- ── フレーズ確認画面 ── -->
+  <!-- ══ フレーズ確認画面 ══ -->
   <div class="screen" id="screen-review" style="display:none">
     <header class="review-header">
-      <button class="btn-icon" id="btn-back">←</button>
+      <button class="btn-icon" id="btn-back">← 録音</button>
       <h1>Licketch</h1>
       <span class="seg-label" id="seg-label">1 / 1</span>
     </header>
@@ -58,6 +62,23 @@
       <button class="btn-action btn-prev" id="btn-prev" disabled>◀ 前へ</button>
       <button class="btn-action btn-next" id="btn-next">次へ ▶</button>
       <button class="btn-action btn-save" id="btn-save">保存</button>
+    </div>
+  </div>
+
+  <!-- ══ 一覧画面 ══ -->
+  <div class="screen" id="screen-list" style="display:none">
+    <header class="list-header">
+      <button class="btn-icon" id="btn-list-back">←</button>
+      <h1>Licketch</h1>
+      <span class="list-count" id="list-count">0件</span>
+      <button class="btn-text" id="btn-select">選択</button>
+    </header>
+
+    <div class="phrase-list" id="phrase-list"></div>
+
+    <div class="bulk-actions" id="bulk-actions" style="display:none">
+      <span class="bulk-count" id="bulk-count">0件選択中</span>
+      <button class="btn-bulk-delete" id="btn-bulk-delete" disabled>削除</button>
     </div>
   </div>
 

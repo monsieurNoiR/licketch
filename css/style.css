@@ -46,13 +46,22 @@ header h1 {
   text-transform: uppercase;
 }
 
-/* Review header: ← title  1/N */
-.review-header {
+/* 録音ヘッダー: title  一覧 */
+.record-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* フレーズ確認・一覧ヘッダー: ← title  badge */
+.review-header,
+.list-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.review-header h1 { flex: 1; }
+.review-header h1,
+.list-header h1 { flex: 1; }
 
 .btn-icon {
   background: none;
@@ -64,7 +73,20 @@ header h1 {
   -webkit-tap-highlight-color: transparent;
 }
 
-.seg-label {
+/* ヘッダー右の小テキストボタン（一覧へ） */
+.btn-text {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 5px 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.seg-label,
+.list-count {
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
@@ -282,3 +304,155 @@ header h1 {
   color: #fff;
   flex: 1.4;
 }
+
+/* ════════════════════════════════
+   一覧画面
+════════════════════════════════ */
+#screen-list {
+  flex-direction: column;
+}
+
+.phrase-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.list-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.phrase-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.phrase-item:active { background: var(--surface); }
+
+.phrase-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.phrase-play:active { transform: scale(0.92); border-color: var(--accent); }
+
+.phrase-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.phrase-name {
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phrase-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.phrase-dl {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.phrase-dl:active { color: var(--text); border-color: var(--muted); }
+
+/* ── 選択モード ── */
+.phrase-item.selectable {
+  position: relative;
+  padding-left: 52px;
+  cursor: pointer;
+}
+
+/* 選択インジケーター（空の円） */
+.phrase-item.selectable::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+/* 選択済み：塗りつぶし */
+.phrase-item.selected::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.phrase-item.selected {
+  background: rgba(229, 57, 53, 0.07);
+}
+
+/* ── 一括削除バー ── */
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.bulk-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-bulk-delete {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-bulk-delete:disabled {
+  background: var(--muted);
+  cursor: default;
+}
+.btn-bulk-delete:active:not(:disabled) { transform: scale(0.96); opacity: 0.8; }
