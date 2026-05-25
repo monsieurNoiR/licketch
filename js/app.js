@@ -151,12 +151,13 @@ async function enterReviewScreen() {
   audioBuffer    = await audioContext.decodeAudioData(arrayBuf);
 
   const boundaries = [0, ...marks, audioBuffer.duration];
-  segments = boundaries.slice(0, -1).map((start, i) => {
+  const allSegs = boundaries.slice(0, -1).map((start, i) => {
     const end = boundaries[i + 1];
-    return { start, end, trimStart: findSoundStart(audioBuffer, start, end) };
+    const detected = findSoundStart(audioBuffer, start, end);
+    return { start, end, trimStart: detected ?? start, hasSound: detected !== null };
   });
-  const meaningful = segments.filter(s => s.end - s.trimStart >= 0.3);
-  segments = meaningful.length > 0 ? meaningful : segments;
+  const meaningful = allSegs.filter(s => s.hasSound && s.end - s.trimStart >= 0.3);
+  segments = meaningful.length > 0 ? meaningful : allSegs;
 
   activeSegIdx = 0;
   updateWaveTab();
@@ -503,5 +504,5 @@ function findSoundStart(audioBuffer, fromSec, toSec) {
       if (++streak >= SUSTAIN) return Math.max(fromSec, streakStart - PREROLL);
     } else { streak = 0; }
   }
-  return fromSec;
+  return null;  // no sound detected in this segment
 }
