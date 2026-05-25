@@ -29,8 +29,6 @@ const btnRec       = document.getElementById('btn-rec');
 const timeDisplay  = document.getElementById('time-display');
 const meterFill    = document.getElementById('meter-fill');
 const markLog      = document.getElementById('mark-log');
-const btnReview    = document.getElementById('btn-review');
-const btnList      = document.getElementById('btn-list');
 
 // ── DOM: フレーズ確認画面 ──────────────────────────────────
 const screenReview = document.getElementById('screen-review');
@@ -41,17 +39,20 @@ const btnPlay      = document.getElementById('btn-play');
 const btnPrev      = document.getElementById('btn-prev');
 const btnNext      = document.getElementById('btn-next');
 const btnSave      = document.getElementById('btn-save');
-const btnBack      = document.getElementById('btn-back');
 
 // ── DOM: 一覧画面 ──────────────────────────────────────────
 const screenList    = document.getElementById('screen-list');
-const btnListBack   = document.getElementById('btn-list-back');
 const phraseList    = document.getElementById('phrase-list');
 const listCount     = document.getElementById('list-count');
 const btnSelect     = document.getElementById('btn-select');
 const bulkActions   = document.getElementById('bulk-actions');
 const bulkCount     = document.getElementById('bulk-count');
 const btnBulkDelete = document.getElementById('btn-bulk-delete');
+
+// ── DOM: タブバー ──────────────────────────────────────────
+const tabRecord = document.getElementById('tab-record');
+const tabWave   = document.getElementById('tab-wave');
+const tabList   = document.getElementById('tab-list');
 
 // ── 選択モード状態 ─────────────────────────────────────────
 let selectMode  = false;
@@ -68,25 +69,39 @@ const selectedIds = new Set();
 // ══════════════════════════════════════════════════════════
 // 録音画面
 // ══════════════════════════════════════════════════════════
+// ── タブバー ───────────────────────────────────────────────
+tabRecord.addEventListener('click', () => showScreen('record'));
+tabWave.addEventListener('click',   () => { if (audioBuffer) showScreen('review'); });
+tabList.addEventListener('click',   () => showScreen('list'));
+
+function showScreen(id) {
+  if (id !== 'list' && selectMode) exitSelectMode();
+  stopPreview();
+  if (id !== 'list') stopListPreview();
+  if (id !== 'review' && rafDraw) { cancelAnimationFrame(rafDraw); rafDraw = null; }
+
+  screenRecord.style.display = id === 'record' ? 'flex' : 'none';
+  screenReview.style.display = id === 'review' ? 'flex' : 'none';
+  screenList.style.display   = id === 'list'   ? 'flex' : 'none';
+
+  tabRecord.classList.toggle('active', id === 'record');
+  tabWave.classList.toggle('active',   id === 'review');
+  tabList.classList.toggle('active',   id === 'list');
+
+  if (id === 'review') drawLoop();
+  if (id === 'list')   renderList();
+}
+
+function updateWaveTab() {
+  tabWave.disabled = !audioBuffer;
+}
+
 btnRec.addEventListener('click', async () => {
   if (!isRecording) await startRecording();
   else              await stopRecording();
 });
 
-btnList.addEventListener('click', () => {
-  screenRecord.style.display = 'none';
-  screenList.style.display = 'flex';
-  renderList();
-});
-
-btnReview.addEventListener('click', () => {
-  screenRecord.style.display = 'none';
-  screenReview.style.display = 'flex';
-  drawLoop();
-});
-
 async function startRecording() {
-  btnReview.style.display = 'none';
   try {
     const stream = await recorder.getStream();
     if (!audioContext) {
@@ -126,7 +141,6 @@ async function stopRecording() {
   updateMeter(-100);
   console.log(`[STOP] ${(elapsedMs / 1000).toFixed(1)}s — marks: ${marks.length}個`);
   await enterReviewScreen();
-  btnReview.style.display = 'block';
 }
 
 // ══════════════════════════════════════════════════════════
@@ -145,8 +159,6 @@ async function enterReviewScreen() {
   segments = meaningful.length > 0 ? meaningful : segments;
 
   activeSegIdx = 0;
-  screenRecord.style.display = 'none';
-  screenReview.style.display = 'flex';
 
   if (!waveform) {
     waveform = new Waveform(waveCanvas);
@@ -159,7 +171,8 @@ async function enterReviewScreen() {
   const { start, end } = waveform.getTrim();
   updateTrimInfo(start, end);
   updateNavButtons();
-  drawLoop();
+  updateWaveTab();
+  showScreen('review');
 }
 
 let rafDraw = null;
@@ -221,14 +234,6 @@ btnSave.addEventListener('click', async () => {
   else moveToSegment(activeSegIdx + 1);
 });
 
-btnBack.addEventListener('click', () => {
-  stopPreview();
-  if (rafDraw) { cancelAnimationFrame(rafDraw); rafDraw = null; }
-  screenReview.style.display = 'none';
-  screenRecord.style.display = 'flex';
-  if (audioBuffer) btnReview.style.display = 'block';
-});
-
 function moveToSegment(idx) {
   activeSegIdx = idx;
   waveform.setActive(activeSegIdx, segments);
@@ -241,10 +246,7 @@ function moveToSegment(idx) {
 }
 
 function exitReviewScreen() {
-  if (rafDraw) { cancelAnimationFrame(rafDraw); rafDraw = null; }
-  screenReview.style.display = 'none';
-  screenList.style.display   = 'flex';
-  renderList();
+  showScreen('list');
 }
 
 function updateSegLabel()    { segLabel.textContent = `${activeSegIdx + 1} / ${segments.length}`; }
@@ -259,12 +261,6 @@ function updateTrimInfo(s, e) {
 // ══════════════════════════════════════════════════════════
 // 一覧画面
 // ══════════════════════════════════════════════════════════
-btnListBack.addEventListener('click', () => {
-  if (selectMode) exitSelectMode();
-  stopListPreview();
-  screenList.style.display   = 'none';
-  screenRecord.style.display = 'flex';
-});
 
 // ── 選択モード ─────────────────────────────────────────────
 btnSelect.addEventListener('click', () => {
@@ -283,9 +279,8 @@ btnBulkDelete.addEventListener('click', async () => {
 function enterSelectMode() {
   selectMode = true;
   selectedIds.clear();
-  btnSelect.textContent       = 'キャンセル';
-  btnListBack.style.visibility = 'hidden';
-  bulkActions.style.display   = 'flex';
+  btnSelect.textContent     = 'キャンセル';
+  bulkActions.style.display = 'flex';
   updateBulkDeleteBtn();
   document.querySelectorAll('.phrase-item').forEach(el => el.classList.add('selectable'));
 }
@@ -293,9 +288,8 @@ function enterSelectMode() {
 function exitSelectMode() {
   selectMode = false;
   selectedIds.clear();
-  btnSelect.textContent        = '選択';
-  btnListBack.style.visibility = '';
-  bulkActions.style.display    = 'none';
+  btnSelect.textContent     = '選択';
+  bulkActions.style.display = 'none';
   document.querySelectorAll('.phrase-item').forEach(el => el.classList.remove('selectable', 'selected'));
 }
 
