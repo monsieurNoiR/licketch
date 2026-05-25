@@ -1,7 +1,7 @@
 # Licketch — CLAUDE.md
 
 ギタープレイヤー向けフレーズメモ PWA（iPad Safari メイン）。
-録音 → 無音検出でセグメント分割 → 波形確認・トリム → IndexedDB に WAV 保存。
+録音 → 無音検出でセグメント分割 → 波形確認・トリム → IndexedDB に AAC/M4A 保存。
 
 ## 起動方法
 
@@ -16,8 +16,8 @@ iPad から `https://192.168.1.7:3443` でアクセス。
 - **録音**: MediaRecorder API（mimeType フォールバック: webm → mp4）
 - **無音検出**: Web Audio API AnalyserNode、RMS ウィンドウ（20ms×3連続 = 60ms 持続、-45dB 閾値）
 - **波形**: Canvas 2D（`waveform.js`）、トリムハンドルのタッチ/マウスドラッグ対応
-- **エンコード**: Float32 → Int16 PCM WAV（app.js 内 `encodeWAV()`）
-- **ストレージ**: IndexedDB（WAV blob + draft）＋ localStorage（メタデータ）
+- **エンコード**: `createMediaStreamDestination()` + `MediaRecorder` でリアルタイム AAC/M4A 変換（`encodeAAC()`）。mimeType: `audio/mp4` → `audio/webm` フォールバック
+- **ストレージ**: IndexedDB（AAC/M4A blob + draft）＋ localStorage（メタデータ）
 - **PWA**: Service Worker キャッシュファースト、manifest.json
 
 ## ファイル構成
@@ -35,14 +35,14 @@ sw.js          Service Worker
 server.js      Node.js HTTPS サーバー（開発用）
 ```
 
-## 現在の状態（最終更新: 2026-05-25）
+## 現在の状態（最終更新: 2026-05-25、AAC変更含む）
 
 Phase 1〜3 実装完了・動作確認済み。ヘルプ画面追加済み。
 
 ### 実装済み機能
 
 - **録音画面**: REC ボタン、経過時間表示、音量メーター、MARK ログ
-- **波形確認画面**: 全録音の波形表示、セグメントナビ（前へ/次へ/完了）、トリムハンドル、プレビュー再生、WAV 保存
+- **波形確認画面**: 全録音の波形表示、セグメントナビ（前へ/次へ/完了）、トリムハンドル、プレビュー再生、AAC/M4A 保存
 - **一覧画面**: フレーズ一覧、再生、ダウンロード、長押し個別削除、選択モード一括削除
 - **ヘルプ画面**: 基本的な使い方・PWA インストール手順（iOS/Android 別）・オーディオインターフェース接続・FAQ（アコーディオン形式）
 - **タブバー**: 全画面共通ナビ（録音/波形/一覧/？）。波形タブは録音データがある場合のみ有効
@@ -51,7 +51,7 @@ Phase 1〜3 実装完了・動作確認済み。ヘルプ画面追加済み。
 ### IndexedDB スキーマ
 
 - DB 名: `licketch`、バージョン: **2**
-- ストア `phrases`: `{ id, blob }` — 保存済み WAV
+- ストア `phrases`: `{ id, blob }` — 保存済み AAC/M4A（旧データは WAV の場合もあり）
 - ストア `draft`: `{ id: 'current', blob, marks }` — 未処理録音
 
 ### 既知の制約
