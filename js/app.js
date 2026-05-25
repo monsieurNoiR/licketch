@@ -64,6 +64,21 @@ const selectedIds = new Set();
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(console.error);
   }
+
+  const draft = await storage.getDraft();
+  if (draft) {
+    const restore = confirm('未処理の録音があります。続きを確認しますか？');
+    if (restore) {
+      recordingBlob = draft.blob;
+      marks         = draft.marks;
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      await enterReviewScreen();
+    } else {
+      await storage.clearDraft();
+    }
+  }
 })();
 
 // ══════════════════════════════════════════════════════════
@@ -140,6 +155,7 @@ async function stopRecording() {
   btnRec.textContent = 'REC';
   updateMeter(-100);
   console.log(`[STOP] ${(elapsedMs / 1000).toFixed(1)}s — marks: ${marks.length}個`);
+  await storage.saveDraft(recordingBlob, marks);
   await enterReviewScreen();
 }
 
@@ -186,13 +202,14 @@ function drawLoop() {
   tick();
 }
 
-btnPlay.addEventListener('click', () => {
+btnPlay.addEventListener('click', async () => {
   if (previewSource) { stopPreview(); btnPlay.textContent = '▶'; }
-  else { const { start, end } = waveform.getTrim(); playPreview(start, end); btnPlay.textContent = '■'; }
+  else { const { start, end } = waveform.getTrim(); await playPreview(start, end); btnPlay.textContent = '■'; }
 });
 
-function playPreview(startSec, endSec) {
+async function playPreview(startSec, endSec) {
   stopPreview();
+  if (audioContext.state === 'suspended') await audioContext.resume();
   const src = audioContext.createBufferSource();
   src.buffer = audioBuffer;
   src.connect(audioContext.destination);
@@ -247,6 +264,7 @@ function moveToSegment(idx) {
 }
 
 function exitReviewScreen() {
+  storage.clearDraft();
   showScreen('list');
 }
 
