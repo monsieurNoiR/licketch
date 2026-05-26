@@ -35,10 +35,12 @@ const screenReview = document.getElementById('screen-review');
 const waveCanvas   = document.getElementById('waveform-canvas');
 const segLabel     = document.getElementById('seg-label');
 const trimInfo     = document.getElementById('trim-info');
-const btnPlay      = document.getElementById('btn-play');
-const btnPrev      = document.getElementById('btn-prev');
-const btnNext      = document.getElementById('btn-next');
-const btnSave      = document.getElementById('btn-save');
+const btnPlay            = document.getElementById('btn-play');
+const btnPrev            = document.getElementById('btn-prev');
+const btnNext            = document.getElementById('btn-next');
+const btnSave            = document.getElementById('btn-save');
+const encodeProgress     = document.getElementById('encode-progress');
+const encodeProgressFill = document.getElementById('encode-progress-fill');
 
 // ── DOM: 一覧画面 ──────────────────────────────────────────
 const screenList    = document.getElementById('screen-list');
@@ -244,13 +246,42 @@ btnNext.addEventListener('click', () => {
 btnSave.addEventListener('click', async () => {
   stopPreview();
   const { start, end } = waveform.getTrim();
+  const duration = end - start;
 
   btnSave.disabled    = true;
+  btnPrev.disabled    = true;
+  btnNext.disabled    = true;
+  btnPlay.disabled    = true;
   btnSave.textContent = '保存中…';
 
-  const aacBlob = await encodeAAC(audioBuffer, start, end);
-  const name    = makeFileName();
-  const meta    = { name, date: new Date().toISOString(), duration: end - start, size: aacBlob.size };
+  encodeProgressFill.style.width = '0%';
+  encodeProgress.style.display   = 'block';
+
+  let encodeStartTime = null;
+  let rafId = null;
+  const tickProgress = () => {
+    if (encodeStartTime !== null) {
+      const pct = Math.min((audioContext.currentTime - encodeStartTime) / duration * 100, 99);
+      encodeProgressFill.style.width = `${pct}%`;
+    }
+    rafId = requestAnimationFrame(tickProgress);
+  };
+  rafId = requestAnimationFrame(tickProgress);
+
+  const aacBlob = await encodeAAC(audioBuffer, start, end, t => { encodeStartTime = t; });
+
+  cancelAnimationFrame(rafId);
+  encodeProgressFill.style.width = '100%';
+  setTimeout(() => {
+    encodeProgress.style.display   = 'none';
+    encodeProgressFill.style.width = '0%';
+  }, 200);
+
+  btnPlay.disabled = false;
+  btnNext.disabled = false;
+
+  const name = makeFileName();
+  const meta = { name, date: new Date().toISOString(), duration, size: aacBlob.size };
 
   await storage.savePhrase(aacBlob, meta);
   btnSave.disabled    = false;
@@ -472,7 +503,7 @@ function appendMarkItem(t) {
 // ── AAC encoder ────────────────────────────────────────────
 // Renders the trimmed segment through MediaRecorder to get native AAC/MP4.
 // Audio is routed to a MediaStreamDestination (not the speakers).
-function encodeAAC(audioBuffer, startSec, endSec) {
+function encodeAAC(audioBuffer, startSec, endSec, onStarted) {
   return new Promise(async (resolve) => {
     if (audioContext.state === 'suspended') await audioContext.resume();
 
@@ -491,6 +522,7 @@ function encodeAAC(audioBuffer, startSec, endSec) {
     src.buffer = audioBuffer;
     src.connect(dest);
     src.onended = () => mr.stop();
+    if (onStarted) onStarted(audioContext.currentTime);
     src.start(0, startSec, endSec - startSec);
   });
 }
