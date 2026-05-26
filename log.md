@@ -1,5 +1,24 @@
 # Licketch 変更ログ
 
+## 未対応の技術的負債（2026-05-26 時点）
+
+### 中程度
+
+- **`encodeAAC()` にタイムアウト処理がない** — MediaRecorder の `onstop` が発火しない場合、Promise が永久に resolve されず「保存中…」のまま固まる
+- **`decodeAudioData` にエラーハンドリングがない** — `enterReviewScreen()` でのデコード失敗（破損データ等）が握りつぶされてフリーズする
+- **`storage.savePhrase` の失敗がユーザーに伝わらない** — IndexedDB 書き込み失敗や `localStorage` の `QuotaExceededError` を catch しておらず、失敗しても「保存 ✓」と表示される
+- **初期化 IIFE にエラーハンドリングがない** — `storage.init()` や `storage.getDraft()` の失敗が catch されず、アプリ全体が起動しなくなる
+- **一覧画面の Object URL が再生停止時にリークする** — `toggleListPlay()` で生成した Object URL が `onended` 以外のパス（途中停止等）で `revokeObjectURL` されない
+
+### 軽微
+
+- **`getUserMedia` のエラーメッセージが汎用的すぎる** — `NotFoundError`（マイクなし）と `NotAllowedError`（権限拒否）で同じメッセージを表示する
+- **`console.log` が本番コードに残っている** — `recorder.js`（2箇所）・`analyzer.js`（1箇所）
+- **メタデータと blob の非同期性による孤立データの可能性** — IndexedDB 書き込み成功後・`localStorage` 書き込み前にクラッシュすると、参照されない blob が蓄積する
+- **`Waveform` の `mousemove` / `mouseup` リスナーが `window` に残り続ける** — インスタンスが再作成される場合にリークするが、現状は1回のみ生成なので実害なし
+
+---
+
 ## 2026-05-26 (4)
 
 ### GitHub Pages 公開対応
