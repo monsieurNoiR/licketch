@@ -1,17 +1,17 @@
-const CACHE = 'licketch-v5';
+const CACHE = 'licketch-v6';
 
 const SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/recorder.js',
-  '/js/analyzer.js',
-  '/js/waveform.js',
-  '/js/storage.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  './',
+  './index.html',
+  './manifest.json',
+  './css/style.css',
+  './js/app.js',
+  './js/recorder.js',
+  './js/analyzer.js',
+  './js/waveform.js',
+  './js/storage.js',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', (e) => {
@@ -34,7 +34,7 @@ self.addEventListener('fetch', (e) => {
   // ナビゲーション（ページロード）はキャッシュ済みの index.html で応答
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      caches.match('/index.html').then(cached => cached || fetch(e.request))
+      caches.match('./index.html').then(cached => cached || fetch(e.request))
     );
     return;
   }

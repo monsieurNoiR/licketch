@@ -68,7 +68,7 @@ const selectedIds = new Set();
 (async () => {
   await storage.init();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
+    navigator.serviceWorker.register('sw.js').catch(console.error);
   }
 
   const draft = await storage.getDraft();

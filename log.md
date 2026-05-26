@@ -1,5 +1,16 @@
 # Licketch 変更ログ
 
+## 2026-05-26 (4)
+
+### GitHub Pages 公開対応
+
+- `key.pem` / `cert.pem` は .gitignore 済み・git 履歴にも一度もコミットされていないことを確認（対応不要）
+- `index.html`: `/icons/icon-192.png` → `icons/icon-192.png`、`/manifest.json` → `manifest.json`
+- `js/app.js`: SW 登録パスを `/sw.js` → `sw.js`
+- `sw.js`: SHELL の全パスを `/xxx` → `./xxx` に変更、navigate ハンドラも `/index.html` → `./index.html`
+- `manifest.json`: `scope` / `start_url` を `"/"` → `"./"` に変更、アイコン src も `./icons/` に変更
+- `sw.js`: キャッシュバージョンを v5 → v6 に更新（パス変更に伴うキャッシュ無効化）
+
 ## 2026-05-26 (3)
 
 ### Service Worker キャッシュバージョンを v5 に更新

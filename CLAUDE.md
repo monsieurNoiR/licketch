@@ -40,6 +40,13 @@ server.js      Node.js HTTPS サーバー（開発用）
 Phase 1〜3 実装完了・動作確認済み。ヘルプ画面追加済み。
 AACエンコード中のプログレスバー追加済み。
 ヘルプ FAQ に「保存したファイルはどこに？」を追加済み。
+GitHub Pages 公開対応済み（絶対パス→相対パス変換、SW v6）。
+
+## GitHub Pages 公開情報
+
+- 公開 URL: `https://monsieurNoir.github.io/licketch/`（予定）
+- key.pem / cert.pem は .gitignore 済み・履歴にも含まれていない
+- SW スコープ・manifest の start_url はすべて相対パス（`./`）で記述済み
 
 ### 実装済み機能
 
